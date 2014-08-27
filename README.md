@@ -1,6 +1,11 @@
+## Installation
+```
+$ go get github.com/hhatto/zazenboys_ga_kikitai
+```
+
 ## Usage
 ```
-$ GOMAXPROCS=4 zazenboys_ga_kikitai
+$ zazenboys_ga_kikitai
 ```
 
 ```

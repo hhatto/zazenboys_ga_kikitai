@@ -9,6 +9,7 @@ import (
 	"os"
 	"path"
 	"regexp"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -16,7 +17,7 @@ import (
 func main() {
 	var doc *goquery.Document
 	var err error
-	quit := make(chan bool)
+	quit := make(chan string)
 	count := 0
 
 	baseUrl := "http://mukaishutoku.com/download.html"
@@ -28,6 +29,17 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	go func() {
+		m := []string{"|", "/", "-", "\\", "|"}
+		for {
+			for _, v := range m {
+				fmt.Print(v)
+				time.Sleep(120 * time.Millisecond)
+				fmt.Print("\x1b[1D")
+			}
+		}
+	}()
 
 	if doc, err = goquery.NewDocument(baseUrl); err != nil {
 		log.Fatal(err)
@@ -63,14 +75,19 @@ func main() {
 				log.Fatal(err)
 			}
 			_, target := path.Split(mp3ParsedUrl.Path)
-			fmt.Println("download:", target)
 			ioutil.WriteFile(target, contents, 0755)
-			quit <- false
+			quit <- target
 		}(downloadUrl)
 	})
 
+	var ret []string
 	for count > 0 {
-		<-quit
+		ret = append(ret, <-quit)
 		count--
+	}
+
+	fmt.Println("\x1b[1D[download file]")
+	for _, name := range ret {
+		fmt.Println(name)
 	}
 }
